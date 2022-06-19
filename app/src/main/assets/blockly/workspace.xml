@@ -1,0 +1,55 @@
+<xml xmlns="https://developers.google.com/blockly/xml" id="workspaceBlocks" style="display: none">
+  <block type="device_key" id="|?Q?2V(a5OKnt2f{K:K+" x="63" y="162">
+    <field name="NAME">3</field>
+    <next>
+      <block type="device_tap" id="Uj?$c1dOhL`1DYA`9KG^">
+        <value name="X">
+          <block type="math_number" id="(+az+6z,K^H[m6p#8gJ*">
+            <field name="NUM">100</field>
+          </block>
+        </value>
+        <value name="Y">
+          <block type="math_number" id="Vb7i=NWwb;4L)ir:t.(:">
+            <field name="NUM">250</field>
+          </block>
+        </value>
+        <next>
+          <block type="controls_repeat_ext" id="vGv}feAbn~BiN,C[}`1m">
+            <value name="TIMES">
+              <block type="math_number" id="-h1Dcb9EVn4vfqRqCOW3">
+                <field name="NUM">2</field>
+              </block>
+            </value>
+            <statement name="DO">
+              <block type="text_log" id="4F_y?#[SpJcaoO-:Q=LI">
+                <value name="TEXT">
+                  <block type="text" id="x~X]_kv!K)KLP7cX:):z">
+                    <field name="TEXT">LogText</field>
+                  </block>
+                </value>
+                <next>
+                  <block type="text_toast" id="AhO/9uFLq2)nwFQu~vMl">
+                    <value name="TEXT">
+                      <block type="text" id="i55]A3Ga(AYsFzs(GpUG">
+                        <field name="TEXT">ToastText</field>
+                      </block>
+                    </value>
+                    <next>
+                      <block type="controls_sleep" id="b?wwjRz9ZdcBju{PkwOl">
+                        <value name="NUM">
+                          <block type="math_number" id="T[1@8Ko|+Smm+44k?N0d">
+                            <field name="NUM">5</field>
+                          </block>
+                        </value>
+                      </block>
+                    </next>
+                  </block>
+                </next>
+              </block>
+            </statement>
+          </block>
+        </next>
+      </block>
+    </next>
+  </block>
+</xml>
