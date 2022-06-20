@@ -1,7 +1,9 @@
 package com.example.myapplication.ui.gallery;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -14,6 +16,7 @@ import android.widget.Button;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.AppCompatEditText;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -93,38 +96,64 @@ public class GalleryFragment extends Fragment implements CustomAdapter.OnAdapter
                 Uri uri = resultData.getData();
                 Log.d("ActivityResultLauncher",uri.toString());
 
-                try {
-                    InputStream stream = _context.getContentResolver().openInputStream(uri);
-                    ZipInputStream is = new ZipInputStream(stream);
-                    while (true) {
-                        ZipEntry zipEntry = is.getNextEntry();
-                        if (zipEntry == null) {
-                            break;
+                AppCompatEditText editText = new AppCompatEditText(getContext());
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                builder.setTitle("ワークスペース名入力");
+                builder.setMessage("保存するワークスペース名を入力してください。");
+                builder.setView(editText);
+                builder.setPositiveButton("保存", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        String wsName = editText.getText().toString();
+                        if (!wsName.equals("")) {
+                            unzip(uri, wsName);
                         }
-                        Log.d("zipEntryName",zipEntry.getName());
-
-
-                        FileOutputStream os = _context.openFileOutput(zipEntry.getName(), _context.MODE_PRIVATE);
-
-                        byte[] buffer = new byte[1024];
-                        int length = 0;
-                        while ((length = is.read(buffer))>0) {
-                            os.write(buffer, 0, length);
-                        }
-                        os.close();
-                        is.closeEntry();
                     }
+                });
+                builder.setNegativeButton("キャンセル", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                builder.create();
+                builder.show();
 
-                    is.close();
-                    stream.close();
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
             }
         }
     });
+
+    private void unzip(Uri uri, String wsName) {
+        try {
+            InputStream stream = _context.getContentResolver().openInputStream(uri);
+            ZipInputStream is = new ZipInputStream(stream);
+            while (true) {
+                ZipEntry zipEntry = is.getNextEntry();
+                if (zipEntry == null) {
+                    break;
+                }
+                Log.d("zipEntryName",zipEntry.getName());
+
+                FileOutputStream os = _context.openFileOutput(wsName + "_" + zipEntry.getName(), _context.MODE_PRIVATE);
+
+                byte[] buffer = new byte[1024];
+                int length = 0;
+                while ((length = is.read(buffer))>0) {
+                    os.write(buffer, 0, length);
+                }
+                os.close();
+                is.closeEntry();
+            }
+
+            is.close();
+            stream.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     @Override
     public void OnButtonPressed(int position) {

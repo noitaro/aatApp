@@ -12,6 +12,7 @@ import android.webkit.ValueCallback;
 import android.widget.ImageView;
 
 import com.example.myapplication.databinding.FragmentGalleryBinding;
+import com.example.myapplication.service.BackgroundService;
 import com.example.myapplication.ui.gallery.GalleryFragment;
 import com.example.myapplication.ui.home.HomeFragment;
 import com.google.android.material.navigation.NavigationView;

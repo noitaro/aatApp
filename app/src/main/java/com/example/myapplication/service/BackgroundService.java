@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.myapplication.service;
 
 
 import android.app.IntentService;
@@ -17,6 +17,10 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.JobIntentService;
+import com.example.myapplication.R;
+
+import com.example.myapplication.Utility;
+import com.example.myapplication.lua.MyLua2Java;
 
 import org.luaj.vm2.Globals;
 import org.luaj.vm2.LuaValue;

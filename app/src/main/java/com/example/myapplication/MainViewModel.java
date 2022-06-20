@@ -5,6 +5,7 @@ import android.webkit.WebView;
 import androidx.lifecycle.ViewModel;
 
 import com.example.myapplication.models.Workspace;
+import com.example.myapplication.service.BackgroundService;
 
 import java.util.ArrayList;
 import java.util.List;
