@@ -19,6 +19,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatEditText;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -119,7 +121,6 @@ public class GalleryFragment extends Fragment implements CustomAdapter.OnAdapter
                 });
                 builder.create();
                 builder.show();
-
             }
         }
     });
@@ -159,5 +160,6 @@ public class GalleryFragment extends Fragment implements CustomAdapter.OnAdapter
     public void OnButtonPressed(int position) {
         Log.d(TAG,"OnButtonPressed " + position);
         viewModel.setSelectedPosition(position);
+        Navigation.findNavController(binding.getRoot()).navigate(R.id.action_gallery_to_home);
     }
 }
