@@ -92,16 +92,16 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "onCreate: " + aa);
         String[] files = this.fileList();
         Log.d(TAG, "onCreate: " + files.length);
-        Log.d(TAG, "onCreate: " + files[0]);
-        File file = new File(this.getFilesDir(), files[0]);
-        Log.d(TAG, "onCreate: " + file.toURI());
-        Log.d(TAG, "onCreate: " + file.getPath());
+        //Log.d(TAG, "onCreate: " + files[0]);
+        //File file = new File(this.getFilesDir(), files[0]);
+        //Log.d(TAG, "onCreate: " + file.toURI());
+        //Log.d(TAG, "onCreate: " + file.getPath());
 
-        Bitmap bmp = BitmapFactory.decodeFile(file.getPath());
+        //Bitmap bmp = BitmapFactory.decodeFile(file.getPath());
 
         OpenCVMatchTemplate opencv = new OpenCVMatchTemplate();
         //opencv.run(file.getPath(), file.getPath(), file.getPath(), 80);
-        opencv.run(file.toURI().toString(), file.toURI().toString(), file.toURI().toString(), 80);
+        //opencv.run(file.toURI().toString(), file.toURI().toString(), file.toURI().toString(), 80);
     }
 
     @Override
