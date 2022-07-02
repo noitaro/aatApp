@@ -50,11 +50,12 @@ public class HomeFragment extends Fragment {
                         isCompleted = true;
                         Log.d(TAG,"onProgressChanged " + newProgress);
 
-                        String xml = viewModel.getXml();
+                        String xml = viewModel.mWebViewOnWorkspaceXml;
                         if (!xml.equals("")) {
                             String script =
-                                "let xml = Blockly.Xml.textToDom(\""+ xml +"\");\n" +
+                                "let xml = Blockly.Xml.textToDom('"+ xml.replace("\"", "\\\"") +"');\n " +
                                 "Blockly.Xml.domToWorkspace(xml, workspace);";
+                            Log.d(TAG, "onProgressChanged: " + script);
                             view.evaluateJavascript(script, null);
                         }
 

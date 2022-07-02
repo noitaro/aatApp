@@ -17,7 +17,7 @@ public class CustomViewHolder extends RecyclerView.ViewHolder {
 
     private final TextView textView;
     private final Button mButton;
-    private int mPosition;
+    private Workspace mWorkspace;
 
     public CustomViewHolder(@NonNull View view) {
         super(view);
@@ -26,7 +26,7 @@ public class CustomViewHolder extends RecyclerView.ViewHolder {
         this.mButton = (Button) view.findViewById(R.id.button2);
         this.mButton.setOnClickListener(btn -> {
             Log.d(TAG,"button.setOnClickListener()");
-            callback.OnButtonPressed(mPosition);
+            callback.OnButtonPressed(mWorkspace);
         });
     }
 
@@ -35,15 +35,21 @@ public class CustomViewHolder extends RecyclerView.ViewHolder {
         this.callback = callback;
     }
 
-    public void setPosition(int position) {
-        this.mPosition = position;
-    }
-
-    public void setText(String text) {
-        this.textView.setText(text);
+    public void setWorkspace(Workspace workspace) {
+        this.mWorkspace = workspace;
+        this.textView.setText(workspace.Name);
     }
 
     interface OnViewHolderListener {
-        public void OnButtonPressed(int position);
+        public void OnButtonPressed(Workspace workspace);
     }
+
+
+
+
+
+
+
+
+
 }

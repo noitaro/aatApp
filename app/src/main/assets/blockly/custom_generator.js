@@ -1,23 +1,23 @@
 Blockly.Lua['screen_capture'] = function (block) {
-  var code = 'AdbScreenCapture();\n';
+  var code = 'MyLua2Java.screenCapture();\n';
   return code;
 };
 
 Blockly.Lua['tap'] = function (block) {
-  var value_name = Blockly.Lua.valueToCode(block, 'NAME', Blockly.Lua.ORDER_NONE);
-  var code = 'AdbTap(' + value_name + ');\n';
+  var value_name = Blockly.Lua.valueToCode(block, 'NAME', Blockly.Lua.ORDER_ATOMIC);
+  var code = 'MyLua2Java.imageTap(' + value_name + ');\n';
   return code;
 };
 
 Blockly.Lua['field_image_serializable'] = function (block) {
   var name = block.getFieldValue('FIELDNAME');
-  var code = '"' + name + '"';
+  var code = '\'' + name + '\'';
   return [code, Blockly.Lua.ORDER_ATOMIC];
 };
 
 Blockly.Lua['sleep'] = function (block) {
   var number_name = block.getFieldValue('NAME');
-  var code = 'AdbSleep(' + number_name + ');\n';
+  var code = 'MyLua2Java.sleep(' + number_name + ');\n';
   return code;
 };
 

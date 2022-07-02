@@ -9,6 +9,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Icon;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -17,9 +18,12 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.JobIntentService;
+
+import com.example.myapplication.MainActivity;
 import com.example.myapplication.R;
 
 import com.example.myapplication.Utility;
+import com.example.myapplication.lua.CustomDebugLib;
 import com.example.myapplication.lua.MyLua2Java;
 
 import org.luaj.vm2.Globals;
@@ -31,12 +35,12 @@ public class BackgroundService extends Service {
 
     protected @Nullable Context mContext = null;
     private Handler mHandler = null;
+    private Thread mLuaThread;
+    private CustomDebugLib mCustomDebugLib;
 
     @Nullable
     @Override
-    public IBinder onBind(Intent intent) {
-        return null;
-    }
+    public IBinder onBind(Intent intent) { return null; }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -52,38 +56,42 @@ public class BackgroundService extends Service {
         NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         manager.createNotificationChannel(channel);
 
-
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
         Notification notification = new Notification.Builder(this, channelId)
-                        .setContentTitle("notification_title")
-                        .setContentText("notification_message")
-                        .setSmallIcon(R.drawable.ic_baseline_play_circle_outline_24)
-                        .setContentIntent(pendingIntent)
-                        .build();
+                .setContentTitle("notification_title")
+                .setContentText("notification_message")
+                .setSmallIcon(R.drawable.ic_baseline_play_circle_outline_24)
+                .setContentIntent(PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0))
+                .build();
         startForeground(1, notification);
 
 
-        //mHandler.post(new Runnable() {
-        Thread t = new Thread() {
+        mLuaThread = new Thread() {
             @Override
             public void run() {
                 Log.d(TAG, "Thread start");
 
                 String luaCode = intent.getStringExtra("luaCode");
                 luaCode = Utility.trim(luaCode, '"');
-                luaCode = luaCode.replace("\\n", "");
-                Log.d("【onHandleIntent】luaCode", luaCode);
+                luaCode = luaCode.replace("\\n", " ");
+                luaCode = luaCode.replace("end", "end ");
+                Log.d(TAG,"luaCode " + luaCode);
 
                 Globals globals = JsePlatform.standardGlobals();
-                globals.load(new MyLua2Java(mContext));
+                MyLua2Java lua2Java = new MyLua2Java(mContext, globals);
+                globals.load(lua2Java);
+                mCustomDebugLib = new CustomDebugLib();
+                globals.load(mCustomDebugLib);
                 LuaValue chunk = globals.load(luaCode);
-                chunk.call();
+
+                try {
+                    chunk.call();
+                } catch (RuntimeException e) { }
 
                 stopSelf();
                 Log.d(TAG, "Thread end");
             }
         };
-        t.start();
+        mLuaThread.start();
 
         Log.d(TAG, "onStartCommand end");
         return super.onStartCommand(intent, flags, startId);
@@ -91,8 +99,10 @@ public class BackgroundService extends Service {
 
     @Override
     public void onDestroy() {
-        Log.d("onDestroy", "start");
-        Log.d("onDestroy", "end");
+        Log.d(TAG,"onDestroy start");
+        mCustomDebugLib.interrupted = true;
+        mLuaThread.interrupt();
+        Log.d(TAG,"onDestroy end");
     }
 
 

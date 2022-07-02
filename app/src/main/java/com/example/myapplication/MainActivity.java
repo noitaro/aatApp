@@ -17,6 +17,7 @@ import android.webkit.ValueCallback;
 import android.widget.ImageView;
 
 import com.example.myapplication.databinding.FragmentGalleryBinding;
+import com.example.myapplication.models.Workspace;
 import com.example.myapplication.service.BackgroundService;
 import com.example.myapplication.service.OpenCVMatchTemplate;
 import com.example.myapplication.ui.gallery.GalleryFragment;
@@ -46,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
     private MainViewModel viewModel;
     private AppBarConfiguration mAppBarConfiguration;
     private ActivityMainBinding binding;
+    private Intent mBackgroundIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,18 +67,24 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
 
-        ImageView imageView = (ImageView) root.findViewById(R.id.imageView2);
-        imageView.setOnClickListener(v -> {
-            Log.d(TAG,"OnClickListener " + v);
+        ImageView imageView2 = (ImageView) root.findViewById(R.id.imageView2);
+        imageView2.setOnClickListener(v -> {
+            String javaScript =
+                    "Blockly.Lua.STATEMENT_PREFIX = 'MyLua2Java.sleep(0);';" +
+                    "Blockly.Lua.workspaceToCode(workspace);";
 
-            viewModel.getWebView().evaluateJavascript("Blockly.Lua.workspaceToCode(workspace);", (value -> {
-                Log.d(TAG,"getLuaCode " + value);
+            viewModel.getWebView().evaluateJavascript(javaScript, (value -> {
+                //Log.d(TAG,"Blockly.Lua.workspaceToCode " + value);
 
-                Intent intent = new Intent(this, BackgroundService.class);
-                intent.putExtra("luaCode", value);
-                startForegroundService(intent);
+                mBackgroundIntent = new Intent(this, BackgroundService.class);
+                mBackgroundIntent.putExtra("luaCode", value);
+                startForegroundService(mBackgroundIntent);
             }));
+        });
 
+        ImageView imageView3 = (ImageView) root.findViewById(R.id.imageView3);
+        imageView3.setOnClickListener(v -> {
+            stopService(mBackgroundIntent);
         });
 
         if(OpenCVLoader.initDebug()){

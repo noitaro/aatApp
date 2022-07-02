@@ -13,6 +13,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplication.models.Workspace;
 import com.example.myapplication.R;
+
+import java.io.FileNotFoundException;
 import java.util.List;
 
 public class CustomAdapter extends RecyclerView.Adapter<CustomViewHolder> implements CustomViewHolder.OnViewHolderListener {
@@ -36,8 +38,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomViewHolder> implem
     @Override
     public void onBindViewHolder(@NonNull CustomViewHolder holder, int position) {
         Workspace workspace = mWorkspaceList.get(position);
-        holder.setPosition(position);
-        holder.setText(workspace.text);
+        holder.setWorkspace(workspace);
         holder.setOnViewHolderListener(this);
     }
 
@@ -48,9 +49,9 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomViewHolder> implem
 
 
     @Override
-    public void OnButtonPressed(int position) {
-        Log.d(TAG,"OnButtonPressed " + position);
-        callback.OnButtonPressed(position);
+    public void OnButtonPressed(Workspace workspace) {
+        Log.d(TAG,"OnButtonPressed " + workspace.Name);
+        callback.OnButtonPressed(workspace);
     }
 
     OnAdapterListener callback;
@@ -59,6 +60,19 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomViewHolder> implem
     }
 
     interface OnAdapterListener {
-        public void OnButtonPressed(int position);
+        public void OnButtonPressed(Workspace workspace);
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

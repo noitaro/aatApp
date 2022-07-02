@@ -22,7 +22,6 @@ Blockly.Blocks['tap'] = {
 Blockly.Blocks['field_image_serializable'] = {
   init: function () {
     this.appendDummyInput()
-      .appendField(new Blockly.FieldImageSerializable('data1'), 'FIELDNAME')
       .appendField(new Blockly.FieldTextInput("default"), "NAME");
     this.setOutput(true, null);
     this.setColour(65);

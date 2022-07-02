@@ -6,6 +6,7 @@ import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
+import org.luaj.vm2.Globals;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.LibFunction;
 import org.luaj.vm2.lib.OneArgFunction;
@@ -30,39 +31,78 @@ import java.io.DataOutputStream;
 import java.net.Socket;
 
 public class MyLua2Java extends LibFunction {
+    private static final String TAG = "MyLua2Java";
     private Context _context = null;
+    private Globals _globals = null;
+    private MyLua2Java self;
 
-    public MyLua2Java(Context context) {
+    public MyLua2Java(Context context, Globals globals) {
         _context = context;
+        _globals = globals;
+        self = this;
     }
 
     public LuaValue call(LuaValue modname, LuaValue env) {
         LuaValue library = tableOf();
+        library.set("screenCapture", new screenCapture());
+        library.set("imageTap", new imageTap());
         library.set("log", new javaLog());
         library.set("sleep", new javaSleep());
+        library.set("deviceTap", new deviceTap());
         library.set("toast", new javaToast());
         library.set("deviceKey", new deviceKey());
-        library.set("deviceTap", new deviceTap());
         env.set("MyLua2Java", library);
         return library;
     }
 
+    class screenCapture extends OneArgFunction {
+        public LuaValue call(LuaValue value) {
+            Log.d(TAG, "screenCapture: " + value.toString());
+            return null;
+        }
+    }
+
+    class imageTap extends OneArgFunction {
+        public LuaValue call(LuaValue value) {
+            Log.d(TAG, "imageTap: " + value.toString());
+            return null;
+        }
+    }
+
     class javaLog extends OneArgFunction {
         public LuaValue call(LuaValue value) {
-            Log.d("Blockly", value.toString());
+            Log.d(TAG, "javaLog: " + value.toString());
             return null;
         }
     }
 
     class javaSleep extends OneArgFunction {
         public LuaValue call(LuaValue value) {
-            Log.d("【Blockly】javaSleep", value.toString());
+            Log.d(TAG, "javaSleep: " + value.toString());
             try {
                 int millis = value.toint() * 1000;
                 Thread.sleep(millis);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            } catch (InterruptedException e) { }
+            return null;
+        }
+    }
+
+    class deviceTap extends TwoArgFunction {
+        @Override
+        public LuaValue call(LuaValue luaValueX, LuaValue luaValueY) {
+            Log.d(TAG, "deviceTap: " + luaValueX.toString() + ", y=" + luaValueY.toString());
+            InjectEvent motionEvent = new InjectEvent();
+            motionEvent.event = "motion";
+            motionEvent.action = 0;
+            motionEvent.x = luaValueX.tofloat();
+            motionEvent.y = luaValueY.tofloat();
+            Gson gson = new Gson();
+            String json = gson.toJson(motionEvent);
+            Send(json);
+
+            motionEvent.action = 1;
+            json = gson.toJson(motionEvent);
+            Send(json);
             return null;
         }
     }
@@ -82,7 +122,7 @@ public class MyLua2Java extends LibFunction {
 
     class deviceKey extends OneArgFunction {
         public LuaValue call(LuaValue value) {
-            Log.d("【Blockly】deviceKey", value.toString());
+            Log.d(TAG, "deviceKey: " + value.toString());
             String url = "https://localhost:8081/KeyEvent/";
             InjectEvent keyEvent = new InjectEvent();
             keyEvent.event = "key";
@@ -99,29 +139,9 @@ public class MyLua2Java extends LibFunction {
         }
     }
 
-    class deviceTap extends TwoArgFunction {
-        @Override
-        public LuaValue call(LuaValue luaValueX, LuaValue luaValueY) {
-            Log.d("【Blockly】deviceTap", "x=" + luaValueX.toString() + ", y=" + luaValueY.toString());
-            InjectEvent motionEvent = new InjectEvent();
-            motionEvent.event = "motion";
-            motionEvent.action = 0;
-            motionEvent.x = luaValueX.tofloat();
-            motionEvent.y = luaValueY.tofloat();
-            Gson gson = new Gson();
-            String json = gson.toJson(motionEvent);
-            Send(json);
-
-            motionEvent.action = 1;
-            json = gson.toJson(motionEvent);
-            Send(json);
-            return null;
-        }
-    }
-
     private void Send(String json) {
         try {
-            Log.d("【Blockly】Send", "json=" + json);
+            Log.d(TAG, "Send: " + json);
 
             Socket socket = new Socket("localhost", 8081);
             DataOutputStream output = new DataOutputStream(socket.getOutputStream());
@@ -130,8 +150,6 @@ public class MyLua2Java extends LibFunction {
 
             output.close();
             socket.close();
-
-            Log.d("【Blockly】Send", "end");
         } catch (Exception e) {
             e.printStackTrace();
         }

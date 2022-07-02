@@ -29,10 +29,17 @@ import com.example.myapplication.R;
 import com.example.myapplication.databinding.FragmentGalleryBinding;
 import com.example.myapplication.models.Workspace;
 
+import org.luaj.vm2.ast.Str;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -46,6 +53,7 @@ public class GalleryFragment extends Fragment implements CustomAdapter.OnAdapter
 
     protected RecyclerView mRecyclerView;
     protected CustomAdapter mAdapter;
+    protected List<Workspace> mWorkspaceList;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -57,12 +65,28 @@ public class GalleryFragment extends Fragment implements CustomAdapter.OnAdapter
 
         _context = getContext();
 
-        mAdapter = new CustomAdapter(viewModel.getWorkspaceList());
+        mWorkspaceList = new ArrayList<Workspace>();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String[] fileNames = _context.fileList();
+                for (String fileName: fileNames){
+                    if (fileName.contains(".xml")) {
+                        Workspace workspace = new Workspace();
+                        workspace.Name = fileName;
+                        mWorkspaceList.add(workspace);
+                    }
+                }
+            }
+        }).start();
+
+        mAdapter = new CustomAdapter(mWorkspaceList);
         mAdapter.setOnAdapterListener(this);
 
         mRecyclerView = (RecyclerView) root.findViewById(R.id.recyclerView);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         mRecyclerView.setAdapter(mAdapter);
+
         return root;
     }
 
@@ -157,9 +181,43 @@ public class GalleryFragment extends Fragment implements CustomAdapter.OnAdapter
     }
 
     @Override
-    public void OnButtonPressed(int position) {
-        Log.d(TAG,"OnButtonPressed " + position);
-        viewModel.setSelectedPosition(position);
+    public void OnButtonPressed(Workspace workspace) {
+        Log.d(TAG,"OnButtonPressed " + workspace.Name);
+        StringBuffer workspaceXml = new StringBuffer();
+
+        try {
+            File file = new File(_context.getFilesDir(), workspace.Name);
+
+            FileInputStream is = _context.openFileInput(file.getName());
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+
+            String str;
+            while ((str = reader.readLine()) != null) {
+                workspaceXml.append(str);
+            }
+
+            reader.close();
+            is.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        viewModel.mWebViewOnWorkspaceXml = workspaceXml.toString();
         Navigation.findNavController(binding.getRoot()).navigate(R.id.action_gallery_to_home);
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
