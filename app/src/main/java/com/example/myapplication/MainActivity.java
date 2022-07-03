@@ -20,6 +20,7 @@ import com.example.myapplication.databinding.FragmentGalleryBinding;
 import com.example.myapplication.models.Workspace;
 import com.example.myapplication.service.BackgroundService;
 import com.example.myapplication.service.OpenCVMatchTemplate;
+import com.example.myapplication.ui.dialog.ProgressDialogFragment;
 import com.example.myapplication.ui.gallery.GalleryFragment;
 import com.example.myapplication.ui.home.HomeFragment;
 import com.google.android.material.navigation.NavigationView;
@@ -47,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
     private MainViewModel viewModel;
     private AppBarConfiguration mAppBarConfiguration;
     private ActivityMainBinding binding;
-    private Intent mBackgroundIntent;
+    private ProgressDialogFragment progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +70,9 @@ public class MainActivity extends AppCompatActivity {
 
         ImageView imageView2 = (ImageView) root.findViewById(R.id.imageView2);
         imageView2.setOnClickListener(v -> {
+            progressDialog = new ProgressDialogFragment();
+            progressDialog.show(getSupportFragmentManager(), TAG);
+
             String javaScript =
                     "Blockly.Lua.STATEMENT_PREFIX = 'MyLua2Java.sleep(0);';" +
                     "Blockly.Lua.workspaceToCode(workspace);";
@@ -76,15 +80,11 @@ public class MainActivity extends AppCompatActivity {
             viewModel.getWebView().evaluateJavascript(javaScript, (value -> {
                 //Log.d(TAG,"Blockly.Lua.workspaceToCode " + value);
 
-                mBackgroundIntent = new Intent(this, BackgroundService.class);
-                mBackgroundIntent.putExtra("luaCode", value);
-                startForegroundService(mBackgroundIntent);
+                Intent intent = new Intent(this, BackgroundService.class);
+                intent.putExtra("luaCode", value);
+                startForegroundService(intent);
+                finish();
             }));
-        });
-
-        ImageView imageView3 = (ImageView) root.findViewById(R.id.imageView3);
-        imageView3.setOnClickListener(v -> {
-            stopService(mBackgroundIntent);
         });
 
         if(OpenCVLoader.initDebug()){
@@ -125,6 +125,31 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    public void onStart() {
+        Log.d(TAG, "onStart: ");
+
+        Intent intent = new Intent(this, BackgroundService.class);
+        stopService(intent);
+
+        if (progressDialog != null) {
+            progressDialog.dismissAllowingStateLoss();
+        }
+
+        super.onStart();
+    }
+
+    @Override
+    public void onStop() {
+        Log.d(TAG, "onStop: ");
+        super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        Log.d(TAG, "onDestroy: ");
+        super.onDestroy();
+    }
 
 
 

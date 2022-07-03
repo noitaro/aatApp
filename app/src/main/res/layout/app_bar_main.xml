@@ -33,22 +33,10 @@
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_margin="10dp"
-                android:layout_marginEnd="20dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/imageView3"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/ic_baseline_play_circle_outline_24" />
-
-            <ImageView
-                android:id="@+id/imageView3"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_margin="10dp"
-                android:layout_marginEnd="20dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/ic_baseline_stop_circle_24" />
+                app:srcCompat="@drawable/ic_baseline_play_circle_outline_24" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

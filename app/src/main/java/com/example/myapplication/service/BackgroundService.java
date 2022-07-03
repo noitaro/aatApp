@@ -57,8 +57,8 @@ public class BackgroundService extends Service {
         manager.createNotificationChannel(channel);
 
         Notification notification = new Notification.Builder(this, channelId)
-                .setContentTitle("notification_title")
-                .setContentText("notification_message")
+                .setContentTitle("実行中...")
+                .setContentText("タップすると自動操作が中断されます。")
                 .setSmallIcon(R.drawable.ic_baseline_play_circle_outline_24)
                 .setContentIntent(PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0))
                 .build();

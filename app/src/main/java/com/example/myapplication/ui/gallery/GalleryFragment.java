@@ -53,7 +53,7 @@ public class GalleryFragment extends Fragment implements CustomAdapter.OnAdapter
 
     protected RecyclerView mRecyclerView;
     protected CustomAdapter mAdapter;
-    protected List<Workspace> mWorkspaceList;
+    protected List<Workspace> mWorkspaceList = new ArrayList<Workspace>();
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -65,20 +65,8 @@ public class GalleryFragment extends Fragment implements CustomAdapter.OnAdapter
 
         _context = getContext();
 
-        mWorkspaceList = new ArrayList<Workspace>();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                String[] fileNames = _context.fileList();
-                for (String fileName: fileNames){
-                    if (fileName.contains(".xml")) {
-                        Workspace workspace = new Workspace();
-                        workspace.Name = fileName;
-                        mWorkspaceList.add(workspace);
-                    }
-                }
-            }
-        }).start();
+        // ワークスペースリスト作成
+        createWorkspaceList();
 
         mAdapter = new CustomAdapter(mWorkspaceList);
         mAdapter.setOnAdapterListener(this);
@@ -134,6 +122,9 @@ public class GalleryFragment extends Fragment implements CustomAdapter.OnAdapter
                         String wsName = editText.getText().toString();
                         if (!wsName.equals("")) {
                             unzip(uri, wsName);
+
+                            // ワークスペースリスト作成
+                            createWorkspaceList();
                         }
                     }
                 });
@@ -208,6 +199,24 @@ public class GalleryFragment extends Fragment implements CustomAdapter.OnAdapter
         Navigation.findNavController(binding.getRoot()).navigate(R.id.action_gallery_to_home);
     }
 
+    private void createWorkspaceList() {
+
+        mWorkspaceList.clear();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String[] fileNames = _context.fileList();
+                for (String fileName: fileNames){
+                    if (fileName.contains(".xml")) {
+                        Workspace workspace = new Workspace();
+                        workspace.Name = fileName;
+                        mWorkspaceList.add(workspace);
+                    }
+                }
+            }
+        }).start();
+
+    }
 
 
 
