@@ -33,13 +33,15 @@ import java.net.Socket;
 public class MyLua2Java extends LibFunction {
     private static final String TAG = "MyLua2Java";
     private Context _context = null;
-    private Globals _globals = null;
-    private MyLua2Java self;
 
-    public MyLua2Java(Context context, Globals globals) {
+    LuaListener listener;
+    public interface LuaListener {
+        public void ScreenCapture();
+    }
+
+    public MyLua2Java(Context context) {
         _context = context;
-        _globals = globals;
-        self = this;
+        listener = (LuaListener)context;
     }
 
     public LuaValue call(LuaValue modname, LuaValue env) {
@@ -58,6 +60,7 @@ public class MyLua2Java extends LibFunction {
     class screenCapture extends OneArgFunction {
         public LuaValue call(LuaValue value) {
             Log.d(TAG, "screenCapture: " + value.toString());
+            listener.ScreenCapture();
             return null;
         }
     }

@@ -1,11 +1,16 @@
 package com.example.myapplication;
 
+import android.app.Activity;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.hardware.display.DisplayManager;
+import android.hardware.display.VirtualDisplay;
+import android.media.projection.MediaProjection;
+import android.media.projection.MediaProjectionManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -15,6 +20,7 @@ import android.view.Menu;
 import android.view.View;
 import android.webkit.ValueCallback;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.example.myapplication.databinding.FragmentGalleryBinding;
 import com.example.myapplication.models.Workspace;
@@ -25,6 +31,10 @@ import com.example.myapplication.ui.gallery.GalleryFragment;
 import com.example.myapplication.ui.home.HomeFragment;
 import com.google.android.material.navigation.NavigationView;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
@@ -50,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
     private ProgressDialogFragment progressDialog;
 
+    private MediaProjectionManager mMediaProjectionManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,22 +82,10 @@ public class MainActivity extends AppCompatActivity {
 
         ImageView imageView2 = (ImageView) root.findViewById(R.id.imageView2);
         imageView2.setOnClickListener(v -> {
-            progressDialog = new ProgressDialogFragment();
-            progressDialog.show(getSupportFragmentManager(), TAG);
 
-            // Luaスクリプトを中断させるため
-            String javaScript =
-                    "Blockly.Lua.STATEMENT_PREFIX = 'MyLua2Java.sleep(0);';" +
-                    "Blockly.Lua.workspaceToCode(workspace);";
+            mMediaProjectionManager = (MediaProjectionManager)this.getSystemService(Context.MEDIA_PROJECTION_SERVICE);
+            mStartForResult.launch(mMediaProjectionManager.createScreenCaptureIntent());
 
-            viewModel.getWebView().evaluateJavascript(javaScript, (value -> {
-                //Log.d(TAG,"Blockly.Lua.workspaceToCode " + value);
-
-                Intent intent = new Intent(this, BackgroundService.class);
-                intent.putExtra("luaCode", value);
-                startForegroundService(intent);
-                finish();
-            }));
         });
 
         if(OpenCVLoader.initDebug()){
@@ -111,6 +111,9 @@ public class MainActivity extends AppCompatActivity {
         OpenCVMatchTemplate opencv = new OpenCVMatchTemplate();
         //opencv.run(file.getPath(), file.getPath(), file.getPath(), 80);
         //opencv.run(file.toURI().toString(), file.toURI().toString(), file.toURI().toString(), 80);
+
+
+
     }
 
     @Override
@@ -151,6 +154,49 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "onDestroy: ");
         super.onDestroy();
     }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+
+    }
+
+    ActivityResultLauncher<Intent> mStartForResult = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+        new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult result) {
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    // Handle the Intent
+                    Log.i(TAG, "Starting screen capture");
+
+
+                    progressDialog = new ProgressDialogFragment();
+                    progressDialog.show(getSupportFragmentManager(), TAG);
+
+                    // Luaスクリプトを中断させるため
+                    String javaScript =
+                            "Blockly.Lua.STATEMENT_PREFIX = 'MyLua2Java.sleep(0);';" +
+                                    "Blockly.Lua.workspaceToCode(workspace);";
+
+                    viewModel.getWebView().evaluateJavascript(javaScript, (value -> {
+                        //Log.d(TAG,"Blockly.Lua.workspaceToCode " + value);
+
+                        Intent intent = new Intent(getApplication(), BackgroundService.class);
+                        intent.putExtra("luaCode", value);
+                        intent.putExtra("resultCode", result.getResultCode());
+                        intent.putExtra("resultData", result.getData());
+                        startForegroundService(intent);
+                        finish();
+                    }));
+                } else {
+                    Log.i(TAG, "User cancelled");
+                    Toast.makeText(getApplicationContext(), "画面共有を拒否しました。", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+    );
+
 
 
 

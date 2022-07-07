@@ -9,10 +9,20 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.ImageFormat;
+import android.graphics.PixelFormat;
 import android.graphics.drawable.Icon;
+import android.hardware.display.DisplayManager;
+import android.hardware.display.VirtualDisplay;
+import android.media.Image;
+import android.media.ImageReader;
+import android.media.projection.MediaProjection;
+import android.media.projection.MediaProjectionManager;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.util.DisplayMetrics;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -30,13 +40,27 @@ import org.luaj.vm2.Globals;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.jse.JsePlatform;
 
-public class BackgroundService extends Service {
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+
+public class BackgroundService extends Service implements MyLua2Java.LuaListener {
     private static final String TAG = "BackgroundService";
 
     protected @Nullable Context mContext = null;
     private Handler mHandler = null;
     private Thread mLuaThread;
     private CustomDebugLib mCustomDebugLib;
+
+    private MediaProjection mMediaProjection;
+    private VirtualDisplay mVirtualDisplay;
+    private MediaProjectionManager mMediaProjectionManager;
+    private ImageReader mImageReader;
+
+    private int mWidth;
+    private int mHeight;
 
     @Nullable
     @Override
@@ -46,8 +70,13 @@ public class BackgroundService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand start");
 
-        mContext = getApplicationContext();
+        mContext = this;
         mHandler = new Handler(Looper.getMainLooper());
+
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        mWidth = metrics.widthPixels;
+        mHeight = metrics.heightPixels;
+        int density = metrics.densityDpi;
 
         String channelId = "blockly";
         String channelName = "service channel";
@@ -64,6 +93,15 @@ public class BackgroundService extends Service {
                 .build();
         startForeground(1, notification);
 
+        int resultCode = intent.getIntExtra("resultCode", 0);
+        Intent resultData = intent.getParcelableExtra("resultData");
+        mMediaProjectionManager = (MediaProjectionManager)this.getSystemService(Context.MEDIA_PROJECTION_SERVICE);
+        mMediaProjection = mMediaProjectionManager.getMediaProjection(resultCode, resultData);
+
+
+        mImageReader = ImageReader.newInstance(mWidth, mHeight, PixelFormat.RGBA_8888, 2);
+        mVirtualDisplay = mMediaProjection.createVirtualDisplay("ScreenCapture", mWidth, mHeight, density,
+                DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR, mImageReader.getSurface(), null, null);
 
         mLuaThread = new Thread() {
             @Override
@@ -77,7 +115,7 @@ public class BackgroundService extends Service {
                 Log.d(TAG,"luaCode " + luaCode);
 
                 Globals globals = JsePlatform.standardGlobals();
-                MyLua2Java lua2Java = new MyLua2Java(mContext, globals);
+                MyLua2Java lua2Java = new MyLua2Java(mContext);
                 globals.load(lua2Java);
                 mCustomDebugLib = new CustomDebugLib();
                 globals.load(mCustomDebugLib);
@@ -106,15 +144,35 @@ public class BackgroundService extends Service {
     }
 
 
+    @Override
+    public void ScreenCapture() {
+        Bitmap screenshot = getScreenshot();
+        try {
+            File file = new File(getFilesDir().getPath() + "/test.png");
+            FileOutputStream outStream = new FileOutputStream(file);
+            screenshot.compress(Bitmap.CompressFormat.PNG, 100, outStream);
+            outStream.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
+    private Bitmap getScreenshot() {
+        Image image = mImageReader.acquireLatestImage();
+        Image.Plane[] planes = image.getPlanes();
+        ByteBuffer buffer = planes[0].getBuffer();
 
+        int pixelStride = planes[0].getPixelStride();
+        int rowStride = planes[0].getRowStride();
+        int rowPadding = rowStride - pixelStride * mWidth;
 
+        // バッファからBitmapを生成
+        Bitmap bitmap = Bitmap.createBitmap(mWidth + rowPadding / pixelStride, mHeight, Bitmap.Config.ARGB_8888);
+        bitmap.copyPixelsFromBuffer(buffer);
+        image.close();
 
-
-
-
-
-
-
-
+        return bitmap;
+    }
 }

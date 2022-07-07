@@ -14,7 +14,8 @@
         android:theme="@style/Theme.MyApplication">
         <service android:name=".service.BackgroundService"
             android:enabled="true"
-            android:exported="false"></service>
+            android:exported="false"
+            android:foregroundServiceType="mediaProjection"></service>
         <activity
             android:name=".MainActivity"
             android:exported="true"
