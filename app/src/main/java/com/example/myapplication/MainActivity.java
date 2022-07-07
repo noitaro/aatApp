@@ -73,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
             progressDialog = new ProgressDialogFragment();
             progressDialog.show(getSupportFragmentManager(), TAG);
 
+            // Luaスクリプトを中断させるため
             String javaScript =
                     "Blockly.Lua.STATEMENT_PREFIX = 'MyLua2Java.sleep(0);';" +
                     "Blockly.Lua.workspaceToCode(workspace);";
