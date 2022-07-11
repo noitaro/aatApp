@@ -14,7 +14,7 @@ public class MainViewModel extends ViewModel {
 
     public MainViewModel() { }
 
-
+    public String mWorkspaceName = "";
     public String mWebViewOnWorkspaceXml = "";
 
     private WebView mWebView;

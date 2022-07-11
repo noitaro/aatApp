@@ -20,6 +20,8 @@ import com.example.myapplication.R;
 import com.example.myapplication.databinding.FragmentGalleryBinding;
 import com.example.myapplication.databinding.FragmentHomeBinding;
 
+import org.luaj.vm2.ast.Str;
+
 public class HomeFragment extends Fragment {
     private static final String TAG = "HomeFragment";
 
@@ -47,6 +49,7 @@ public class HomeFragment extends Fragment {
                     Log.d(TAG,"onProgressChanged " + newProgress);
                 } else {
                     if (!isCompleted) {
+                        // webview.html を読み込み終わった。
                         isCompleted = true;
                         Log.d(TAG,"onProgressChanged " + newProgress);
 
@@ -77,16 +80,41 @@ public class HomeFragment extends Fragment {
     public void onStart() {
         super.onStart();
         Log.d(TAG,"onStart");
+    }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d(TAG,"onResume");
     }
 
     @Override
     public void onPause() {
         super.onPause();
         Log.d(TAG,"onPause");
+    }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.d(TAG,"onStop");
 
-
+        String script =
+                "let xmlDom = Blockly.Xml.workspaceToDom(workspace);\n" +
+                        "Blockly.Xml.domToPrettyText(xmlDom);";
+        mWebView.evaluateJavascript(script, value -> {
+            Log.d(TAG, "onStop1: " + value);
+            if (value != "\"null\"") {
+                value = value.replace("\\n", "");
+                value = value.replace("\\\"", "\"");
+                value = value.replace("\\u003C", "<");
+                // 先頭と末尾のダブルクオート削除
+                value = value.substring(1, value.length()-1);
+                Log.d(TAG, "onStop2: " + value);
+                Log.d(TAG, "onStop3: " + viewModel.mWebViewOnWorkspaceXml);
+                viewModel.mWebViewOnWorkspaceXml = value;
+            }
+        });
     }
 
     @Override

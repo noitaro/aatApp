@@ -45,3 +45,4 @@ Blockly.Xml.domToWorkspace(workspaceBlocks, workspace);
 
 
 console.log('Loaded');
+

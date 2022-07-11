@@ -25,7 +25,6 @@ import android.widget.Toast;
 import com.example.myapplication.databinding.FragmentGalleryBinding;
 import com.example.myapplication.models.Workspace;
 import com.example.myapplication.service.BackgroundService;
-import com.example.myapplication.service.OpenCVMatchTemplate;
 import com.example.myapplication.ui.dialog.ProgressDialogFragment;
 import com.example.myapplication.ui.gallery.GalleryFragment;
 import com.example.myapplication.ui.home.HomeFragment;
@@ -85,35 +84,7 @@ public class MainActivity extends AppCompatActivity {
 
             mMediaProjectionManager = (MediaProjectionManager)this.getSystemService(Context.MEDIA_PROJECTION_SERVICE);
             mStartForResult.launch(mMediaProjectionManager.createScreenCaptureIntent());
-
         });
-
-        if(OpenCVLoader.initDebug()){
-            Log.d(TAG,"OpenCv configured successfully");
-        }else{
-            Log.d(TAG,"OpenCv doesn't configured successfully");
-        }
-
-        Log.d(TAG, "onCreate: " + OpenCVLoader.OPENCV_VERSION);
-        Log.d(TAG, "onCreate: " + this.getExternalFilesDirs(Environment.DIRECTORY_PICTURES)[0]);
-        Log.d(TAG, "onCreate: " + this.getExternalFilesDirs(Environment.DIRECTORY_PICTURES)[1]);
-        Uri aa = MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY);
-        Log.d(TAG, "onCreate: " + aa);
-        String[] files = this.fileList();
-        Log.d(TAG, "onCreate: " + files.length);
-        //Log.d(TAG, "onCreate: " + files[0]);
-        //File file = new File(this.getFilesDir(), files[0]);
-        //Log.d(TAG, "onCreate: " + file.toURI());
-        //Log.d(TAG, "onCreate: " + file.getPath());
-
-        //Bitmap bmp = BitmapFactory.decodeFile(file.getPath());
-
-        OpenCVMatchTemplate opencv = new OpenCVMatchTemplate();
-        //opencv.run(file.getPath(), file.getPath(), file.getPath(), 80);
-        //opencv.run(file.toURI().toString(), file.toURI().toString(), file.toURI().toString(), 80);
-
-
-
     }
 
     @Override
@@ -170,7 +141,6 @@ public class MainActivity extends AppCompatActivity {
                     // Handle the Intent
                     Log.i(TAG, "Starting screen capture");
 
-
                     progressDialog = new ProgressDialogFragment();
                     progressDialog.show(getSupportFragmentManager(), TAG);
 
@@ -179,16 +149,17 @@ public class MainActivity extends AppCompatActivity {
                             "Blockly.Lua.STATEMENT_PREFIX = 'MyLua2Java.sleep(0);';" +
                                     "Blockly.Lua.workspaceToCode(workspace);";
 
-                    viewModel.getWebView().evaluateJavascript(javaScript, (value -> {
+                    viewModel.getWebView().evaluateJavascript(javaScript, value -> {
                         //Log.d(TAG,"Blockly.Lua.workspaceToCode " + value);
 
                         Intent intent = new Intent(getApplication(), BackgroundService.class);
                         intent.putExtra("luaCode", value);
                         intent.putExtra("resultCode", result.getResultCode());
                         intent.putExtra("resultData", result.getData());
+                        intent.putExtra("workspaceName", viewModel.mWorkspaceName);
                         startForegroundService(intent);
                         finish();
-                    }));
+                    });
                 } else {
                     Log.i(TAG, "User cancelled");
                     Toast.makeText(getApplicationContext(), "画面共有を拒否しました。", Toast.LENGTH_SHORT).show();

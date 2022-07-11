@@ -20,15 +20,20 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.example.myapplication.models.InjectEvent;
+import com.example.myapplication.models.Template;
 import com.google.gson.Gson;
 
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.LibFunction;
 import org.luaj.vm2.lib.OneArgFunction;
 import org.luaj.vm2.lib.TwoArgFunction;
+import org.opencv.core.Mat;
+import org.opencv.core.Point;
 
 import java.io.DataOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MyLua2Java extends LibFunction {
     private static final String TAG = "MyLua2Java";
@@ -36,7 +41,8 @@ public class MyLua2Java extends LibFunction {
 
     LuaListener listener;
     public interface LuaListener {
-        public void ScreenCapture();
+        void ScreenCapture();
+        Point MatchTemplate(String templateName);
     }
 
     public MyLua2Java(Context context) {
@@ -68,6 +74,11 @@ public class MyLua2Java extends LibFunction {
     class imageTap extends OneArgFunction {
         public LuaValue call(LuaValue value) {
             Log.d(TAG, "imageTap: " + value.toString());
+            Point matchLoc = listener.MatchTemplate(value.toString());
+
+
+
+
             return null;
         }
     }

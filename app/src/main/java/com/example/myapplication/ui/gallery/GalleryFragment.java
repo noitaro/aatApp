@@ -177,7 +177,7 @@ public class GalleryFragment extends Fragment implements CustomAdapter.OnAdapter
         StringBuffer workspaceXml = new StringBuffer();
 
         try {
-            File file = new File(_context.getFilesDir(), workspace.Name);
+            File file = new File(_context.getFilesDir(), workspace.Name+"_workspace.xml");
 
             FileInputStream is = _context.openFileInput(file.getName());
             BufferedReader reader = new BufferedReader(new InputStreamReader(is));
@@ -195,6 +195,8 @@ public class GalleryFragment extends Fragment implements CustomAdapter.OnAdapter
             e.printStackTrace();
         }
 
+        Log.d(TAG, "OnButtonPressed: " + workspaceXml.toString());
+        viewModel.mWorkspaceName = workspace.Name;
         viewModel.mWebViewOnWorkspaceXml = workspaceXml.toString();
         Navigation.findNavController(binding.getRoot()).navigate(R.id.action_gallery_to_home);
     }
@@ -207,9 +209,9 @@ public class GalleryFragment extends Fragment implements CustomAdapter.OnAdapter
             public void run() {
                 String[] fileNames = _context.fileList();
                 for (String fileName: fileNames){
-                    if (fileName.contains(".xml")) {
+                    if (fileName.contains("workspace.xml")) {
                         Workspace workspace = new Workspace();
-                        workspace.Name = fileName;
+                        workspace.Name = fileName.replace("_workspace.xml","");
                         mWorkspaceList.add(workspace);
                     }
                 }

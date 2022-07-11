@@ -10,7 +10,7 @@ Blockly.Lua['tap'] = function (block) {
 };
 
 Blockly.Lua['field_image_serializable'] = function (block) {
-  var name = block.getFieldValue('FIELDNAME');
+  var name = block.getFieldValue('NAME');
   var code = '\'' + name + '\'';
   return [code, Blockly.Lua.ORDER_ATOMIC];
 };
