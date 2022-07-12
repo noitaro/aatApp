@@ -75,10 +75,11 @@ public class MyLua2Java extends LibFunction {
         public LuaValue call(LuaValue value) {
             Log.d(TAG, "imageTap: " + value.toString());
             Point matchLoc = listener.MatchTemplate(value.toString());
+            if (matchLoc == null) {
+                return null;
+            }
 
-
-
-
+            deviceTap((int)(matchLoc.x), (int)(matchLoc.y));
             return null;
         }
     }
@@ -104,19 +105,7 @@ public class MyLua2Java extends LibFunction {
     class deviceTap extends TwoArgFunction {
         @Override
         public LuaValue call(LuaValue luaValueX, LuaValue luaValueY) {
-            Log.d(TAG, "deviceTap: " + luaValueX.toString() + ", y=" + luaValueY.toString());
-            InjectEvent motionEvent = new InjectEvent();
-            motionEvent.event = "motion";
-            motionEvent.action = 0;
-            motionEvent.x = luaValueX.tofloat();
-            motionEvent.y = luaValueY.tofloat();
-            Gson gson = new Gson();
-            String json = gson.toJson(motionEvent);
-            Send(json);
-
-            motionEvent.action = 1;
-            json = gson.toJson(motionEvent);
-            Send(json);
+            deviceTap(luaValueX.toint(), luaValueY.toint());
             return null;
         }
     }
@@ -151,6 +140,29 @@ public class MyLua2Java extends LibFunction {
             Send(json);
             return null;
         }
+    }
+
+    private void deviceTap(int x, int y) {
+        Log.d(TAG, "deviceTap: " + x + ", y=" + y);
+        InjectEvent motionEvent = new InjectEvent();
+        motionEvent.event = "motion";
+        motionEvent.action = 0;
+        motionEvent.x = x;
+        motionEvent.y = y;
+        Gson gson = new Gson();
+        String json = gson.toJson(motionEvent);
+        Send(json);
+
+        // 0.1秒待機
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        motionEvent.action = 1;
+        json = gson.toJson(motionEvent);
+        Send(json);
     }
 
     private void Send(String json) {

@@ -158,6 +158,8 @@ public class MainActivity extends AppCompatActivity {
                         intent.putExtra("resultData", result.getData());
                         intent.putExtra("workspaceName", viewModel.mWorkspaceName);
                         startForegroundService(intent);
+
+                        // メインアクティビティ終了
                         finish();
                     });
                 } else {

@@ -41,6 +41,7 @@ import com.example.myapplication.models.Template;
 
 import org.luaj.vm2.Globals;
 import org.luaj.vm2.LuaValue;
+import org.luaj.vm2.ast.Str;
 import org.luaj.vm2.lib.jse.JsePlatform;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
@@ -182,6 +183,15 @@ public class BackgroundService extends Service implements MyLua2Java.LuaListener
                 globals.load(mCustomDebugLib);
                 LuaValue chunk = globals.load(luaCode);
 
+                // メインアクティビティが終了するまで少し待つ
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                // スクリーンショット（初回は捨てる）
+                //ScreenCapture();
+
                 // Luaスクリプト実行
                 try {
                     chunk.call();
@@ -254,24 +264,18 @@ public class BackgroundService extends Service implements MyLua2Java.LuaListener
             }
         }
 
-        /*
-        savePng(mScreenImage, "mScreenImage.png");
-        savePng(template.Image, "templateImage.png");
+        if (template == null) {
+            Log.e(TAG, "テンプレート画像が読み込めませんでした。");
+        }
 
-        Log.d(TAG, "MatchTemplate2: " + mScreenImage.type());
-        Log.d(TAG, "MatchTemplate2: " + template.Image.type());
-        Log.d(TAG, "MatchTemplate2: " + mScreenImage.dims());
-        Log.d(TAG, "MatchTemplate2: " + template.Image.dims());
-        Log.d(TAG, "MatchTemplate2: " + mScreenImage.depth());
-        Log.d(TAG, "MatchTemplate2: " + template.Image.depth());*/
-        Point matchLoc = matchTemplate(mScreenImage, template.Image, Imgproc.TM_CCOEFF_NORMED);
-        Log.d(TAG, "MatchTemplate3: " + matchLoc.x + ", " + matchLoc.y);
-
-        return null;
+        Point matchLoc = matchTemplate(mScreenImage, template.Image, 0.8);
+        return matchLoc;
     }
 
     private void savePng(Mat mat, String name) {
-        File file = new File(getFilesDir().getPath() + "/" + name);
+        String FileName = name + "_" + System.currentTimeMillis() + ".png";
+        Log.d(TAG, "savePng: " + FileName);
+        File file = new File(getFilesDir().getPath() + "/" + FileName);
         Imgcodecs.imwrite(file.toString(), mat);
     }
 
@@ -301,7 +305,7 @@ public class BackgroundService extends Service implements MyLua2Java.LuaListener
         return bitmap;
     }
 
-    public Point matchTemplate(Mat inImage, Mat templateImage, int match_method) {
+    public Point matchTemplate(Mat inImage, Mat templateImage, double threshold) {
         Log.d(TAG, "Running Template Matching");
 
         //Mat img = Imgcodecs.imread(inFile);
@@ -310,21 +314,22 @@ public class BackgroundService extends Service implements MyLua2Java.LuaListener
         // Create the result matrix
         int result_cols = inImage.cols() - templateImage.cols() + 1;
         int result_rows = inImage.rows() - templateImage.rows() + 1;
-        Mat result = new Mat(result_rows, result_cols, CvType.CV_8UC1);
+        //Mat result = new Mat(result_rows, result_cols, CvType.CV_8UC1);
+        Mat result = new Mat();
 
         // Do the Matching and Normalize
-        Imgproc.matchTemplate(inImage, templateImage, result, match_method);
+        Imgproc.matchTemplate(inImage, templateImage, result, Imgproc.TM_CCOEFF_NORMED);
         Core.normalize(result, result, 0, 1, Core.NORM_MINMAX, -1, new Mat());
 
         // Localizing the best match with minMaxLoc
         Core.MinMaxLocResult mmr = Core.minMaxLoc(result);
 
-        Point matchLoc;
-        if (match_method == Imgproc.TM_SQDIFF || match_method == Imgproc.TM_SQDIFF_NORMED) {
-            matchLoc = mmr.minLoc;
-        } else {
-            matchLoc = mmr.maxLoc;
+        // ルイギド確認
+        if (threshold > mmr.maxVal) {
+            return null;
         }
+
+        Point matchLoc = mmr.maxLoc;
 
         Mat outImage = new Mat();
         inImage.copyTo(outImage);
@@ -333,10 +338,13 @@ public class BackgroundService extends Service implements MyLua2Java.LuaListener
         Imgproc.rectangle(outImage, matchLoc, new Point(matchLoc.x + templateImage.cols(),matchLoc.y + templateImage.rows()), new Scalar(0, 255, 0));
 
         // Save the visualized detection.
-        //Imgcodecs.imwrite(outFile, img);
+        //savePng(outImage, "test");
 
         // 一致した中央ポイントを返却
-        Point centerLoc = new Point(matchLoc.x + (templateImage.cols()/2), matchLoc.y + (templateImage.rows()/2));
+        Point centerLoc = new Point(matchLoc.x + (templateImage.cols()/2), matchLoc.y + (templateImage.rows())); // なぜかYがずれる
+        Log.d(TAG, "matchTemplate1: " + matchLoc.x + ", " + matchLoc.y);
+        Log.d(TAG, "matchTemplate2: " + templateImage.cols() + ", " + templateImage.rows());
+        Log.d(TAG, "matchTemplate3: " + centerLoc.x + ", " + centerLoc.y);
         return centerLoc;
     }
 
