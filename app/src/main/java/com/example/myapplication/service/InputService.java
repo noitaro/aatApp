@@ -58,8 +58,8 @@ public class InputService {
 
     // キーイベントを生成
     public void injectKeyEvent(KeyEvent event)throws InvocationTargetException, IllegalAccessException{
-        System.out.println("injectKeyEvent: start");
+        System.out.println("injectKeyEvent: start " + event.getAction() + ", " + event.getKeyCode());
         injectInputEventMethod.invoke(im, new Object[]{event, 0});
-        System.out.println("injectKeyEvent: start");
+        System.out.println("injectKeyEvent: end");
     }
 }

@@ -126,7 +126,6 @@ public class MyLua2Java extends LibFunction {
     class deviceKey extends OneArgFunction {
         public LuaValue call(LuaValue value) {
             Log.d(TAG, "deviceKey: " + value.toString());
-            String url = "https://localhost:8081/KeyEvent/";
             InjectEvent keyEvent = new InjectEvent();
             keyEvent.event = "key";
             keyEvent.action = 0;
@@ -134,6 +133,13 @@ public class MyLua2Java extends LibFunction {
             Gson gson = new Gson();
             String json = gson.toJson(keyEvent);
             Send(json);
+
+            // 0.1秒待機
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
             keyEvent.action = 1;
             json = gson.toJson(keyEvent);
