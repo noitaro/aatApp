@@ -56,19 +56,6 @@ Blockly.Blocks['text_log'] = {
   }
 };
 
-Blockly.Blocks['controls_sleep'] = {
-  init: function () {
-    this.appendValueInput("NUM")
-      .setCheck("Number")
-      .appendField("sleep");
-    this.setPreviousStatement(true, null);
-    this.setNextStatement(true, null);
-    this.setColour(65);
-    this.setTooltip("");
-    this.setHelpUrl("");
-  }
-};
-
 Blockly.Blocks['device_tap'] = {
   init: function () {
     this.appendDummyInput()
@@ -109,6 +96,55 @@ Blockly.Blocks['device_key'] = {
       .appendField("Press the ")
       .appendField(new Blockly.FieldDropdown([["home", "3"], ["back", "4"], ["camera", "27"], ["app switch", "187"], ["menu", "82"], ["power", "26"], ["settings", "176"], ["volume down", "25"], ["volume mute", "164"], ["volume up", "24"], ["screenshot", "120"]]), "NAME")
       .appendField("button");
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(65);
+    this.setTooltip("");
+    this.setHelpUrl("");
+  }
+};
+
+Blockly.Blocks['app_start'] = {
+  init: function () {
+    this.appendDummyInput()
+      .appendField("アプリ起動");
+    this.appendValueInput("NAME1")
+      .setCheck("String")
+      .appendField(new Blockly.FieldLabelSerializable("・パッケージ名"), "NAME1");
+    this.appendValueInput("NAME2")
+      .setCheck("String")
+      .appendField(new Blockly.FieldLabelSerializable("・クラス名"), "NAME2");
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(65);
+    this.setTooltip("");
+    this.setHelpUrl("");
+  }
+};
+
+Blockly.Blocks['app_end'] = {
+  init: function () {
+    this.appendDummyInput()
+      .appendField("アプリ終了");
+    this.appendValueInput("NAME1")
+      .setCheck(null)
+      .appendField(new Blockly.FieldLabelSerializable("パッケージ名"), "NAME1");
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(65);
+    this.setTooltip("");
+    this.setHelpUrl("");
+  }
+};
+
+Blockly.Blocks['image_existence_confirmation'] = {
+  init: function () {
+    this.appendValueInput("NAME1")
+      .setCheck("TemplateImage")
+      .appendField(new Blockly.FieldDropdown([["テンプレート画像が存在する", "true"], ["テンプレート画像が存在しない","false"]]), "NAME1");
+    this.appendStatementInput("NAME2")
+      .setCheck(null)
+      .appendField("実行");
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
     this.setColour(65);
