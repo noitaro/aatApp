@@ -27,12 +27,6 @@ Blockly.Lua['text_log'] = function (block) {
   return code;
 };
 
-Blockly.Lua['controls_sleep'] = function (block) {
-  var value_num = Blockly.Lua.valueToCode(block, 'NUM', Blockly.Lua.ORDER_ATOMIC);
-  var code = 'MyLua2Java.sleep(' + value_num + ');\n';
-  return code;
-};
-
 Blockly.Lua['device_tap'] = function (block) {
   var value_x = Blockly.Lua.valueToCode(block, 'X', Blockly.Lua.ORDER_ATOMIC);
   var value_y = Blockly.Lua.valueToCode(block, 'Y', Blockly.Lua.ORDER_ATOMIC);
@@ -49,5 +43,26 @@ Blockly.Lua['text_toast'] = function (block) {
 Blockly.Lua['device_key'] = function (block) {
   var dropdown_name = block.getFieldValue('NAME');
   var code = 'MyLua2Java.deviceKey(' + dropdown_name + ');\n';
+  return code;
+};
+
+Blockly.Lua['app_start'] = function (block) {
+  var value_name1 = Blockly.Lua.valueToCode(block, 'NAME1', Blockly.Lua.ORDER_ATOMIC);
+  var value_name2 = Blockly.Lua.valueToCode(block, 'NAME2', Blockly.Lua.ORDER_ATOMIC);
+  var code = 'MyLua2Java.appStart(' + value_name1 + ', ' + value_name2 + ');\n';
+  return code;
+};
+
+Blockly.Lua['app_end'] = function (block) {
+  var value_name1 = Blockly.Lua.valueToCode(block, 'NAME1', Blockly.Lua.ORDER_ATOMIC);
+  var code = 'MyLua2Java.appEnd(' + value_name1 + ');\n';
+  return code;
+};
+
+Blockly.Lua['image_existence_confirmation'] = function (block) {
+  var dropdown_name1 = block.getFieldValue('NAME1');
+  var value_name1 = Blockly.Lua.valueToCode(block, 'NAME1', Blockly.Lua.ORDER_ATOMIC);
+  var statements_name2 = Blockly.Lua.statementToCode(block, 'NAME2');
+  var code = 'if (MyLua2Java.checkImage('+value_name1+') == '+dropdown_name1+') {\n'+statements_name2+'}\n';
   return code;
 };
