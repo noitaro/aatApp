@@ -62,7 +62,6 @@ public class MyLua2Java extends LibFunction {
         library.set("toast", new javaToast());
         library.set("deviceKey", new deviceKey());
         library.set("appStart", new appStart());
-        library.set("appEnd", new appEnd());
         library.set("checkImage", new checkImage());
         env.set("MyLua2Java", library);
         return library;
@@ -157,17 +156,9 @@ public class MyLua2Java extends LibFunction {
         @Override
         public LuaValue call(LuaValue packageName, LuaValue className) {
             // TODO: 作る
-            Intent intent=new Intent();
+            Intent intent = new Intent();
             intent.setComponent(new ComponentName(packageName.toString(), className.toString()));
             _context.startActivity(intent);
-            return null;
-        }
-    }
-
-    class appEnd extends OneArgFunction {
-        public LuaValue call(LuaValue packageName) {
-            // TODO: 作る
-
             return null;
         }
     }

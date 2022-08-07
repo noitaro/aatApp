@@ -122,21 +122,6 @@ Blockly.Blocks['app_start'] = {
   }
 };
 
-Blockly.Blocks['app_end'] = {
-  init: function () {
-    this.appendDummyInput()
-      .appendField("アプリ終了");
-    this.appendValueInput("NAME1")
-      .setCheck(null)
-      .appendField(new Blockly.FieldLabelSerializable("パッケージ名"), "NAME1");
-    this.setPreviousStatement(true, null);
-    this.setNextStatement(true, null);
-    this.setColour(65);
-    this.setTooltip("");
-    this.setHelpUrl("");
-  }
-};
-
 Blockly.Blocks['image_existence_confirmation'] = {
   init: function () {
     this.appendValueInput("NAME1")

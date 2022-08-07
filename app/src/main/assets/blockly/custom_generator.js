@@ -53,12 +53,6 @@ Blockly.Lua['app_start'] = function (block) {
   return code;
 };
 
-Blockly.Lua['app_end'] = function (block) {
-  var value_name1 = Blockly.Lua.valueToCode(block, 'NAME1', Blockly.Lua.ORDER_ATOMIC);
-  var code = 'MyLua2Java.appEnd(' + value_name1 + ');\n';
-  return code;
-};
-
 Blockly.Lua['image_existence_confirmation'] = function (block) {
   var dropdown_name1 = block.getFieldValue('NAME1');
   var value_name1 = Blockly.Lua.valueToCode(block, 'NAME1', Blockly.Lua.ORDER_ATOMIC);
