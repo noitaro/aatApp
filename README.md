@@ -1,1 +1,1 @@
-# AATAPP
+# android-automation-tool-app
