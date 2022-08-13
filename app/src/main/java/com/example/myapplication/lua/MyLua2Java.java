@@ -56,8 +56,8 @@ public class MyLua2Java extends LibFunction {
         LuaValue library = tableOf();
         library.set("screenCapture", new screenCapture());
         library.set("imageTap", new imageTap());
-        library.set("log", new javaLog());
         library.set("sleep", new javaSleep());
+        library.set("log", new javaLog());
         library.set("deviceTap", new deviceTap());
         library.set("toast", new javaToast());
         library.set("deviceKey", new deviceKey());
@@ -88,13 +88,6 @@ public class MyLua2Java extends LibFunction {
         }
     }
 
-    class javaLog extends OneArgFunction {
-        public LuaValue call(LuaValue value) {
-            Log.d(TAG, "javaLog: " + value.toString());
-            return null;
-        }
-    }
-
     class javaSleep extends OneArgFunction {
         public LuaValue call(LuaValue value) {
             Log.d(TAG, "javaSleep: " + value.toString());
@@ -102,6 +95,13 @@ public class MyLua2Java extends LibFunction {
                 int millis = value.toint() * 1000;
                 Thread.sleep(millis);
             } catch (InterruptedException e) { }
+            return null;
+        }
+    }
+
+    class javaLog extends OneArgFunction {
+        public LuaValue call(LuaValue value) {
+            Log.d(TAG, "javaLog: " + value.toString());
             return null;
         }
     }
@@ -155,7 +155,6 @@ public class MyLua2Java extends LibFunction {
     class appStart extends TwoArgFunction {
         @Override
         public LuaValue call(LuaValue packageName, LuaValue className) {
-            // TODO: 作る
             Intent intent = new Intent();
             intent.setComponent(new ComponentName(packageName.toString(), className.toString()));
             _context.startActivity(intent);
@@ -164,10 +163,14 @@ public class MyLua2Java extends LibFunction {
     }
 
     class checkImage extends OneArgFunction {
-        public LuaValue call(LuaValue packageName) {
-            // TODO: 作る
-
-            return null;
+        public LuaValue call(LuaValue value) {
+            Log.d(TAG, "checkImage: " + value.toString());
+            Point matchLoc = listener.MatchTemplate(value.toString());
+            if (matchLoc == null) {
+                return valueOf(false);
+            } else {
+                return  valueOf(true);
+            }
         }
     }
 

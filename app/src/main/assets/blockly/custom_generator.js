@@ -57,6 +57,6 @@ Blockly.Lua['image_existence_confirmation'] = function (block) {
   var dropdown_name1 = block.getFieldValue('NAME1');
   var value_name1 = Blockly.Lua.valueToCode(block, 'NAME1', Blockly.Lua.ORDER_ATOMIC);
   var statements_name2 = Blockly.Lua.statementToCode(block, 'NAME2');
-  var code = 'if (MyLua2Java.checkImage('+value_name1+') == '+dropdown_name1+') {\n'+statements_name2+'}\n';
+  var code = 'if MyLua2Java.checkImage('+value_name1+') == '+dropdown_name1+' then\n'+statements_name2+'\nend';
   return code;
 };

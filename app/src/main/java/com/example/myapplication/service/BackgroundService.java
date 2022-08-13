@@ -266,6 +266,7 @@ public class BackgroundService extends Service implements MyLua2Java.LuaListener
 
         if (template == null) {
             Log.e(TAG, "テンプレート画像が読み込めませんでした。");
+            return null;
         }
 
         Point matchLoc = matchTemplate(mScreenImage, template.Image, 0.8);
