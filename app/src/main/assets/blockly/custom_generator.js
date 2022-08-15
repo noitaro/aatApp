@@ -46,13 +46,6 @@ Blockly.Lua['device_key'] = function (block) {
   return code;
 };
 
-Blockly.Lua['app_start'] = function (block) {
-  var value_name1 = Blockly.Lua.valueToCode(block, 'NAME1', Blockly.Lua.ORDER_ATOMIC);
-  var value_name2 = Blockly.Lua.valueToCode(block, 'NAME2', Blockly.Lua.ORDER_ATOMIC);
-  var code = 'MyLua2Java.appStart(' + value_name1 + ', ' + value_name2 + ');\n';
-  return code;
-};
-
 Blockly.Lua['image_existence_confirmation'] = function (block) {
   var dropdown_name1 = block.getFieldValue('NAME1');
   var value_name1 = Blockly.Lua.valueToCode(block, 'NAME1', Blockly.Lua.ORDER_ATOMIC);

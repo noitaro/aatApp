@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -198,6 +199,13 @@ public class GalleryFragment extends Fragment implements CustomAdapter.OnAdapter
         Log.d(TAG, "OnButtonPressed: " + workspaceXml.toString());
         viewModel.mWorkspaceName = workspace.Name;
         viewModel.mWebViewOnWorkspaceXml = workspaceXml.toString();
+
+        SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString("com.example.myapp.workspace_name", viewModel.mWorkspaceName);
+        editor.putString("com.example.myapp.workspace_xml", viewModel.mWebViewOnWorkspaceXml);
+        editor.apply();
+
         Navigation.findNavController(binding.getRoot()).navigate(R.id.action_gallery_to_home);
     }
 

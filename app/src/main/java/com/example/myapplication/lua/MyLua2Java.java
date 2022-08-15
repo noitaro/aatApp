@@ -61,7 +61,6 @@ public class MyLua2Java extends LibFunction {
         library.set("deviceTap", new deviceTap());
         library.set("toast", new javaToast());
         library.set("deviceKey", new deviceKey());
-        library.set("appStart", new appStart());
         library.set("checkImage", new checkImage());
         env.set("MyLua2Java", library);
         return library;
@@ -148,16 +147,6 @@ public class MyLua2Java extends LibFunction {
             keyEvent.action = 1;
             json = gson.toJson(keyEvent);
             Send(json);
-            return null;
-        }
-    }
-
-    class appStart extends TwoArgFunction {
-        @Override
-        public LuaValue call(LuaValue packageName, LuaValue className) {
-            Intent intent = new Intent();
-            intent.setComponent(new ComponentName(packageName.toString(), className.toString()));
-            _context.startActivity(intent);
             return null;
         }
     }
